@@ -5,10 +5,10 @@
  */
 
 var ajax = {
-	xhr: window.XMLHttpRequest ? 
-             new XMLHttpRequest() : 
-             new ActiveXObject("Microsoft.XMLHTTP") || 
-             new ActiveXObject("Msxml2.XMLHTTP"),
+    xhr: window.XMLHttpRequest ? 
+        new XMLHttpRequest() : 
+        new ActiveXObject("Microsoft.XMLHTTP") || 
+        new ActiveXObject("Msxml2.XMLHTTP"),
 
     metodo: null,
     destino: null,

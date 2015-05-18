@@ -6,7 +6,7 @@
  * @param	NodeList	datos
  * @param	string		usuario
  * @param	string		clave
- * /
+ */
 
 var ajax = {
 	xhr: window.XMLHttpRequest ? 

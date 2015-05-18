@@ -1,11 +1,13 @@
 /**
  * Ajax module
+ * 
  * @author	Alexis López
  * @param	string		metodo
  * @param	string		destino
  * @param	NodeList	datos
  * @param	string		usuario
  * @param	string		clave
+ * @return	string		XHR response
  */
 
 var ajax = {

@@ -1,7 +1,7 @@
 /**
  * Ajax module
  * 
- * @author	Alexis López
+ * @author Alexis López
  */
 
 var ajax = {

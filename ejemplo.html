@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang = "es">
+<head>
+	<meta charset = "utf-8" />
+	<title>Ejemplo</title>
+</head>
+<body>
+	<form id = "foo" action = "ejemplo.php" method = "post">
+		Escriba algo: <input type = "text" name = "algo" />
+		<input type = "submit" />
+	</form>
+	<script type = "text/javascript" src = "ajax.js"></script>
+	<script type = "text/javascript">
+		document.querySelector("#foo").addEventListener("submit", function (event){
+			event.preventDefault();
+			ajax.ejecutar({
+				destino: this.action,
+				metodo: this.method,
+				tipo: "JSON",
+				datos: this
+			}).cargando(function(){
+				console.log("Cargando...");
+			}).listo(function(respuesta){
+				console.log(respuesta);
+			});
+		}, false);
+	</script>
+</body>
+</html>

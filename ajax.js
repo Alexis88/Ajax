@@ -2,12 +2,6 @@
  * Ajax module
  * 
  * @author	Alexis López
- * @param	string		metodo
- * @param	string		destino
- * @param	NodeList	datos
- * @param	string		usuario
- * @param	string		clave
- * @return	string		XHR response
  */
 
 var ajax = {
@@ -24,6 +18,14 @@ var ajax = {
     respuesta: null,
 
     ejecutar: function(param){
+        /**
+         * @param	string		metodo
+         * @param	string		destino
+         * @param	NodeList	datos
+         * @param	string		usuario
+         * @param	string		clave
+         * @return  string      XHR response
+        */
     	this.metodo = param.metodo || "GET";
     	this.destino = param.destino;
     	this.datos = param.datos || null;

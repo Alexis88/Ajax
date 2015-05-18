@@ -1,3 +1,13 @@
+/**
+ * Ajax module
+ * @author	Alexis López
+ * @param	string		metodo
+ * @param	string		destino
+ * @param	NodeList	datos
+ * @param	string		usuario
+ * @param	string		clave
+ * /
+
 var ajax = {
 	xhr: window.XMLHttpRequest ? 
              new XMLHttpRequest() : 

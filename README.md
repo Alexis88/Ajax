@@ -1,2 +1,2 @@
 # Ajax
-Little Ajax module
+Pequeño módulo Ajax

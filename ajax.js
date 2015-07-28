@@ -153,7 +153,7 @@ Ajax.serialize = function(form){
 Ajax({
 	url: La ruta del archivo de destino o el valor del atributo "action" del formulario.
 	method: El método HTTP o el valor del atributo "method" del formulario.
-	type: Tipo de datos a recibir como respuesta a la petición.
+	type: Tipo de datos a recibir como respuesta a la petición. Por defecto es HTML.
 	data: Los datos a enviar. Pueden estar dados como una cadena de texto o como un objeto literal. 
 
 	      Cadena de texto: "foo=bar&bin=bar"

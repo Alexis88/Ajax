@@ -158,8 +158,8 @@ Ajax({
 
 	      Cadena de texto: "foo=bar&bin=bar"
 	      Objeto literal: {
-	  	      foo: bar,
-	  	      bin: baz
+	  	    foo: bar,
+	  	    bin: baz
 	      }
 
 	      También puede usar el método .serialize() para serializar los datos del formulario.

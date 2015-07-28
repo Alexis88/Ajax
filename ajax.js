@@ -171,8 +171,8 @@ Ajax({
 	})
 
 	.fail(function(errorText){
-		Método que ejecuta una llamada de retorno con el mensaje de error cuando se produce uno en la petición o cuando esta
-		se completa pero la respuesta no es exitosa.
+		Método que ejecuta una llamada de retorno con el mensaje de error cuando se produce uno en la petición o cuando 
+		esta se completa pero la respuesta no es exitosa.
 	})
 
 La siguiente forma también es válida:

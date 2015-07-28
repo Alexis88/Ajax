@@ -156,14 +156,13 @@ Ajax({
 	type: Tipo de datos a recibir como respuesta a la petición.
 	data: Los datos a enviar. Pueden estar dados como una cadena de texto o como un objeto literal. 
 
-	Cadena de texto: "foo=bar&bin=bar"
-	Objeto literal: {
-	  	foo: bar,
-	  	bin: baz
-	}
+	    Cadena de texto: "foo=bar&bin=bar"
+	    Objeto literal: {
+	  	    foo: bar,
+	  	    bin: baz
+	    }
 
-	También puede usar el método .serialize() para serializar 
-	los datos del formulario.
+	    También puede usar el método .serialize() para serializar los datos del formulario.
 	async: Valor lógico que determina si la petición será asíncrona o no. Por defecto es true.
 	header: Cabecera de la petición. Por defecto es "application/x-www-form-urlencoded".
 })

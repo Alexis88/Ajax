@@ -11,17 +11,17 @@
 	</form>
 	<script type = "text/javascript" src = "ajax.js"></script>
 	<script type = "text/javascript">
-		document.querySelector("#foo").addEventListener("submit", function (event){
-			event.preventDefault();
-			ajax.ejecutar({
-				destino: this.action,
-				metodo: this.method,
-				tipo: "JSON",
-				datos: this
-			}).cargando(function(){
-				console.log("Cargando...");
-			}).listo(function(respuesta){
-				console.log(respuesta);
+		document.querySelector("#foo").addEventListener("submit", function(event){
+			event.preventDefault();	
+			Ajax({
+				url: this.action,
+				method: this.method,
+				type: "JSON",
+				data: Ajax.serialize(this)
+			}).done(function(response){
+				console.log(response.text);
+			}).fail(function(errorText){
+				console.log(errorText);
 			});
 		}, false);
 	</script>

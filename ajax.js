@@ -1,173 +1,177 @@
 /**
- * Ajax module
- * 
- * @author Alexis López
+ * Clase Ajax
+ *
+ * @author	Alexis López Espinoza
+ * @param	{object}	obj 		Objeto literal con los datos para realizar la petición
+ * @return	{XHR} 		object 		Objeto XMLHttpRequest
+ * @this	{Ajax} 					La clase Ajax
+ * @version	1.0
  */
 
-var ajax = {
-    xhr: window.XMLHttpRequest ? 
-         new XMLHttpRequest() : 
-         new ActiveXObject("Microsoft.XMLHTTP") || 
-         new ActiveXObject("Msxml2.XMLHTTP"),
-
-    metodo: null,
-    destino: null,
-    datos: null,
-    usuario: null,
-    clave: null,
-    respuesta: null,
-
-    ejecutar: function(param){
-        /**
-         * @param	string		metodo
-         * @param	string		destino
-         * @param	NodeList	datos
-         * @param	string		usuario
-         * @param	string		clave
-         * @return  string      XHR response
-        */
-    	this.metodo = param.metodo || "GET";
-    	this.destino = param.destino;
-    	this.datos = param.datos || null;
-    	this.asincrono = param.asincrono || true;
-    	this.usuario = param.usuario || null;
-    	this.clave = param.clave || null;    	
-    	this.preparar();
-    	this.xhr.open(this.metodo, this.destino, this.asincrono, this.usuario, this.clave);
-    	this.cabecera(param.cabecera);
-    	this.xhr.addEventListener("readystatechange", function(){
-    		if (this.readyState < 4){
-    			ajax.respuesta = null;
-    		}
-    		else{
-    			switch (this.status){
-    				case 200:
-    					switch (param.tipo.toUpperCase()){
-		    				case "HTML":
-		    					ajax.respuesta = this.responseText;
-		    					break;
-		    				case "XML":
-		    					ajax.respuesta = this.responseXML;
-		    					break;
-		    				case "JSON":
-		    					ajax.respuesta = JSON.parse(this.responseText);
-		    					break;
-		    			}
-    					break;
-    				case 404:
-    					ajax.respuesta = "Error 404: La página no existe";
-    					break;
-    				default:
-    					ajax.respuesta = "Se ha producido un error: " + this.status;
-    					break;
-    			}
-    		}
-    	}, false);
-    	this.xhr.send(this.datos || null);
-    	return this;
-    },
-
-    cabecera: function(param){
-    	this.xhr.setRequestHeader("Content-Type", param || "application/x-www-form-urlencoded");
-    },
-
-    preparar: function(){
-    	if (this.destino.indexOf("?") < 0){
-    		if (typeof this.datos === "string"){
-    			this.destino += "?" + this.datos;
-    		}
-    		else if (typeof this.datos === "object"){
-    			this.datos = this.serializar(this.datos);
-    		}
-    	}
-    	else{
-    		this.datos = null;
-    	}
-    },
-
-    serializar: function(param){
-    	if (/HTMLFormControlsCollection/.test({}.toString.call(param))){
-    		for (var i = 0, l = param.length, a = []; i < l; a.push(param[i].name + "=" + param[i].value), i++);
-    		return a.join("&");
-    	}
-
-    	if (/HTMLFormElement/.test({}.toString.call(param))){
-    		for (var i = 0, param = param.elements, l = param.length, a = []; i < l; a.push(param[i].name + "=" + param[i].value), i++);
-    		return a.join("&");	
-    	}
-
-    	if (typeof param === "object"){
-    		var a = [];
-    		for (var prop in param){
-    			a.push(prop + "=" + param[prop]);
-    		}
-    		return a.join("&");
-    	}
-    },
-
-    listo: function(fn){
-    	var temp = setInterval(function(){
-    		if (ajax.respuesta){
-    			fn(ajax.respuesta);
-    			clearInterval(temp);
-    		}
-    	}, 1);
-    },
-
-    cargando: function(fn){
-    	if (this.respuesta == null){
-    		fn();
-    	}
-    	return this;
-    },
-
-    inicio: function(fn){
-    	this.xhr.addEventListener("loadstart", fn, false);
-    	return this;
-    },
-
-    progreso: function(fn){
-    	this.xhr.addEventListener("progress", fn, false);
-    	return this;
-    },
-
-    completo: function(fn){
-    	this.xhr.addEventListener("load", fn, false);	
-    	return this;
-    },
-
-    error: function(fn){
-    	this.xhr.addEventListener("error", fn, false);	
-    	return this;
-    },
-
-    abortar: function(fn){
-    	this.xhr.addEventListener("abort", fn, false);
-    	return this;
-    },
-
-    inicioSubida: function(fn){
-    	this.xhr.upload.addEventListener("loadstart", fn, false);
-    	return this;
-    },
-
-    progresoSubida: function(fn){
-    	this.xhr.upload.addEventListener("progress", fn, false);
-    	return this;
-    },
-
-    completoSubida: function(fn){
-    	this.xhr.upload.addEventListener("load", fn, false);	
-    	return this;
-    },
-
-    errorSubida: function(fn){
-    	this.xhr.upload.addEventListener("error", fn, false);	
-    	return this;
-    },
-
-    abortarSubida: function(fn){
-    	this.xhr.upload.addEventListener("abort", fn, false);
-    	return this;
-    },
+/***************************************** CLASE AJAX *****************************************/
+var Ajax = function(obj){
+	if (!(this instanceof Ajax)) return new Ajax(obj);
+	this.prepare(obj);
+	this.exec();
+	return this;
 };
+
+/************************************* MÉTODOS DINÁMICOS *************************************/
+Ajax.prototype = {
+	prepare: function(obj){
+		var aux;
+		this.xhr = new XMLHttpRequest() || new ActiveXObject("Microsoft.XMLHTTP");
+		this.url = obj.url;
+		this.method = obj.method.toUpperCase() || "GET";
+		this.async = obj.async || true;
+		this.data = obj.data || null;
+		this.type = obj.type.toUpperCase() || "HTML";
+		this.header = obj.header || "application/x-www-form-urlencoded";
+
+		if (this.method == "GET"){
+			if (typeof this.data == "string"){
+				this.url += "?" + this.data;				
+			}
+			else if (typeof this.data == "object"){
+				aux = [];
+				for (var prop in this.data){
+					aux.push(prop + "=" + this.data[prop]);
+				}
+				this.url += "?" + aux.join("&");
+			}			
+			this.data = null;
+		}
+		else{
+			if ({}.toString.call(this.data) === "[object Object]"){
+				aux = [];
+				for (var prop in this.data){
+					aux.push(prop + "=" + this.data[prop]);
+				}
+				this.data = aux.join("&");
+			}
+		}
+	},
+
+	exec: function(){
+		var self = this;
+		if (window.Promise){
+			this.promise = new Promise(function(resolve, reject){
+				self.cross(resolve, reject);
+			});
+		}
+		else{
+			self.cross();
+		}
+	},
+
+	cross: function(d, f){
+		var self = this;
+		this.xhr.open(this.method, this.url, this.async);
+		this.xhr.setRequestHeader("Content-Type", this.header);
+		this.xhr.send(this.data);
+		this.xhr.addEventListener("load", function(){
+			if (this.status == 200){
+				switch (self.type){
+					case "XML":
+						self.response = this.responseXML;
+						break;
+					case "JSON":
+						self.response = JSON.parse(this.responseText);
+						break;
+					case "HTML": default:
+						self.response = this.responseText;
+						break;
+				}
+				if (window.Promise) d(self.response);
+			}
+			else{
+				self.response = this.statusText;
+				if (window.Promise) f(self.response);
+			}
+		}, false);
+		this.xhr.addEventListener("error", function(){
+			self.response = this.statusText;
+			if (window.Promise) f(self.response);
+		});
+	},
+
+	done: function(callback){
+		var self = this;
+		if (window.Promise){
+			this.promise.then(function(response){
+				callback(response);	
+			});			
+		}
+		else{
+			this.xhr.addEventListener("load", function(){
+				if (this.status == 200){
+					switch (self.type){
+						case "XML":
+							self.response = this.responseXML;
+							break;
+						case "JSON":
+							self.response = JSON.parse(this.responseText);
+							break;
+						case "HTML": default:
+							self.response = this.responseText;
+							break;
+					}					
+				}
+				else{
+					self.response = this.statusText;
+				}
+				callback(self.response);
+			}, false);
+		}
+		return this;
+	},
+
+	fail: function(callback){
+		var self = this;
+		if (window.Promise){
+			this.promise.catch(function(errorText){
+				callback(errorText);
+			});			
+		}
+		else{
+			this.xhr.addEventListener("error", function(){
+				self.response = this.statusText
+				callback(self.response);
+			}, false);
+		}
+		return this;
+	}
+};
+
+/************************************* MÉTODOS ESTÁTICOS *************************************/
+Ajax.serialize = function(form){
+	for (var i = 0, l = form.elements.length, data = []; i < l; data.push(form.elements[i].name + "=" + form.elements[i].value, i++));
+	return data.join("&");
+};
+
+/*************************************** FORMA DE USO ***************************************
+Ajax({
+	url: La ruta del archivo de destino o el valor del atributo "action" del formulario.
+	method: El método HTTP o el valor del atributo "method" del formulario.
+	type: Tipo de datos a recibir como respuesta a la petición.
+	data: Los datos a enviar. También puede usar el método .serialize() para serializar 
+		  los datos del formulario.
+	async: Valor lógico que determina si la petición será asíncrona o no. Por defecto es true.
+	header: Cabecera de la petición. Por defecto es "application/x-www-form-urlencoded".
+})
+	.done(function(response){
+		//Método que ejecuta una llamada de retorno con la respuesta de la petición cuando esta 
+		  se completa y es exitosa.
+	})
+
+	.fail(function(errorText){
+		//Método que ejecuta una llamada de retorno con el mensaje de error cuando se produce 
+		  uno en la petición.
+	})
+
+La siguiente forma también es válida:
+
+var peticion = Ajax({valores});
+peticion.done(llamada de retorno(respuesta));
+peticion.fail(llamada de retorno(mensaje de error));
+*********************************************************************************************/

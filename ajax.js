@@ -160,12 +160,12 @@ Ajax({
 	header: Cabecera de la petición. Por defecto es "application/x-www-form-urlencoded".
 })
 	.done(function(response){
-		//Método que ejecuta una llamada de retorno con la respuesta de la petición cuando esta 
+		Método que ejecuta una llamada de retorno con la respuesta de la petición cuando esta 
 		  se completa y es exitosa.
 	})
 
 	.fail(function(errorText){
-		//Método que ejecuta una llamada de retorno con el mensaje de error cuando se produce 
+		Método que ejecuta una llamada de retorno con el mensaje de error cuando se produce 
 		  uno en la petición.
 	})
 

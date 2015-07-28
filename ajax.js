@@ -154,18 +154,27 @@ Ajax({
 	url: La ruta del archivo de destino o el valor del atributo "action" del formulario.
 	method: El método HTTP o el valor del atributo "method" del formulario.
 	type: Tipo de datos a recibir como respuesta a la petición.
-	data: Los datos a enviar. También puede usar el método .serialize() para serializar 
+	data: Los datos a enviar. Pueden estar dados como una cadena de texto o como un objeto 
+		  literal. 
+
+		  Cadena de texto: "foo=bar&bin=bar"
+		  Objeto literal: {
+		  	  foo: bar,
+		  	  bin: baz
+		  }
+
+		  También puede usar el método .serialize() para serializar 
 		  los datos del formulario.
 	async: Valor lógico que determina si la petición será asíncrona o no. Por defecto es true.
 	header: Cabecera de la petición. Por defecto es "application/x-www-form-urlencoded".
 })
 	.done(function(response){
-		Método que ejecuta una llamada de retorno con la respuesta de la petición cuando esta 
+		//Método que ejecuta una llamada de retorno con la respuesta de la petición cuando esta 
 		  se completa y es exitosa.
 	})
 
 	.fail(function(errorText){
-		Método que ejecuta una llamada de retorno con el mensaje de error cuando se produce 
+		//Método que ejecuta una llamada de retorno con el mensaje de error cuando se produce 
 		  uno en la petición.
 	})
 

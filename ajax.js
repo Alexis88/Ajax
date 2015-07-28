@@ -174,4 +174,8 @@ La siguiente forma también es válida:
 var peticion = Ajax({valores});
 peticion.done(llamada de retorno(respuesta));
 peticion.fail(llamada de retorno(mensaje de error));
+
+Uso del método .serialize():
+
+Solo hay que pasarle como argumento al propio formulario: Ajax.serialize(formulario).
 *********************************************************************************************/

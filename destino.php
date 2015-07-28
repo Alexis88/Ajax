@@ -1,3 +1,3 @@
 <?php
-echo json_encode(['response' => $_POST['algo']]);
+echo json_encode(['text' => $_POST['algo']]);
 ?>

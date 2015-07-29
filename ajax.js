@@ -9,6 +9,8 @@
  */
 
 /***************************************** CLASE AJAX *****************************************/
+"use strict";
+
 var Ajax = function(obj){
 	if (!(this instanceof Ajax)) return new Ajax(obj);
 	this.prepare(obj);

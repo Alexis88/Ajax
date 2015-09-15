@@ -4,7 +4,7 @@
  * @author	Alexis López Espinoza
  * @param	{object}	obj 		Objeto literal con los datos para realizar la petición
  * @return	{XHR} 		object 		Objeto XMLHttpRequest
- * @this    {Ajax} 				La clase Ajax
+ * @this        {Ajax} 				La clase Ajax
  * @version	1.0
  */
 

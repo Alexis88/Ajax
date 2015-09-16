@@ -4,7 +4,7 @@
  * @author	Alexis López Espinoza
  * @param	{object}	obj 		Objeto literal con los datos para realizar la petición
  * @return	{XHR} 		object 		Objeto XMLHttpRequest
- * @this        {Ajax} 				La clase Ajax
+ * @this	{Ajax} 					La clase Ajax
  * @version	1.0
  */
 
@@ -24,17 +24,17 @@ Ajax.prototype = {
 		var aux;
 		this.xhr = new XMLHttpRequest() || new ActiveXObject("Microsoft.XMLHTTP");
 		this.url = obj.url;
-		this.method = obj.method.toUpperCase() || "GET";
+		this.method = obj.method ? obj.method.toUpperCase() : "GET";
 		this.async = obj.async || true;
 		this.data = obj.data || null;
-		this.type = obj.type.toUpperCase() || "HTML";
+		this.type = obj.type ? obj.type.toUpperCase() : "HTML";
 		this.header = obj.header || "application/x-www-form-urlencoded";
 
 		if (this.method == "GET"){
 			if (typeof this.data == "string"){
-				this.url += "?" + this.data;				
+				this.url += "?" + this.data;
 			}
-			else if (typeof this.data == "object"){
+			else if (this.data && typeof this.data == "object"){
 				aux = [];
 				for (var prop in this.data){
 					aux.push(prop + "=" + this.data[prop]);
@@ -156,25 +156,28 @@ Ajax({
 	url: La ruta del archivo de destino o el valor del atributo "action" del formulario.
 	method: El método HTTP o el valor del atributo "method" del formulario.
 	type: Tipo de datos a recibir como respuesta a la petición. Por defecto es HTML.
-	data: Los datos a enviar. Pueden estar dados como una cadena de texto o como un objeto literal. 
+	data: Los datos a enviar. Pueden estar dados como una cadena de texto o como un objeto 
+		  literal. 
 
-	      Cadena de texto: "foo=bar&bin=bar"
-	      Objeto literal: {
-	  	    foo: bar,
-	  	    bin: baz
-	      }
+		  Cadena de texto: "foo=bar&bin=bar"
+		  Objeto literal: {
+		  	  foo: bar,
+		  	  bin: baz
+		  }
 
-	      También puede usar el método .serialize() para serializar los datos del formulario.
+		  También puede usar el método .serialize() para serializar 
+		  los datos del formulario.
 	async: Valor lógico que determina si la petición será asíncrona o no. Por defecto es true.
 	header: Cabecera de la petición. Por defecto es "application/x-www-form-urlencoded".
 })
 	.done(function(response){
-		Método que ejecuta una llamada de retorno con la respuesta de la petición cuando esta se completa y es exitosa.
+		Método que ejecuta una llamada de retorno con la respuesta de la petición cuando esta 
+		  se completa y es exitosa.
 	})
 
 	.fail(function(errorText){
-		Método que ejecuta una llamada de retorno con el mensaje de error cuando se produce uno en la petición o cuando 
-		esta se completa pero la respuesta no es exitosa.
+		Método que ejecuta una llamada de retorno con el mensaje de error cuando se produce 
+		  uno en la petición o cuando esta se completa pero la respuesta no es exitosa.
 	})
 
 La siguiente forma también es válida:

@@ -147,6 +147,9 @@ Ajax.prototype = {
 
 /************************************* MÉTODOS ESTÁTICOS *************************************/
 Ajax.serialize = function(form){
+	for (var i = 0, frm = form.elements, l = frm.length; i < l; i++){
+		if (frm[i].type == "file") return new FormData(form);
+	}
 	for (var i = 0, l = form.elements.length, data = []; i < l; data.push(form.elements[i].name + "=" + form.elements[i].value, i++));
 	return data.join("&");
 };

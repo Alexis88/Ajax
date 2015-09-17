@@ -4,7 +4,7 @@
  * @author	Alexis López Espinoza
  * @param	{object}	obj 		Objeto literal con los datos para realizar la petición
  * @return	{XHR} 		object 		Objeto XMLHttpRequest
- * @this        {Ajax} 					La clase Ajax
+ * @this    {Ajax} 					La clase Ajax
  * @version	1.0
  */
 
@@ -28,7 +28,7 @@ Ajax.prototype = {
 		this.async = obj.async || true;
 		this.data = obj.data || null;
 		this.type = obj.type ? obj.type.toUpperCase() : "HTML";
-		this.header = obj.header || "application/x-www-form-urlencoded";
+		this.header = obj.header === false ? false : obj.header || "application/x-www-form-urlencoded";
 
 		if (this.method == "GET"){
 			if (typeof this.data == "string"){
@@ -44,7 +44,7 @@ Ajax.prototype = {
 			this.data = null;
 		}
 		else{
-			if ({}.toString.call(this.data) === "[object Object]"){
+			if ({}.toString.call(this.data) === "[object Object]" && {}.toString.call(this.data) !== "[object FormData]"){
 				aux = [];
 				for (var prop in this.data){
 					aux.push(prop + "=" + this.data[prop]);
@@ -69,7 +69,7 @@ Ajax.prototype = {
 	cross: function(d, f){
 		var self = this;
 		this.xhr.open(this.method, this.url, this.async);
-		this.xhr.setRequestHeader("Content-Type", this.header);
+		if (this.header) this.xhr.setRequestHeader("Content-Type", this.header);
 		this.xhr.send(this.data);
 		this.xhr.addEventListener("load", function(){
 			if (this.status == 200){
@@ -147,10 +147,21 @@ Ajax.prototype = {
 
 /************************************* MÉTODOS ESTÁTICOS *************************************/
 Ajax.serialize = function(form){
-	for (var i = 0, frm = form.elements, l = frm.length; i < l; i++){
-		if (frm[i].type == "file") return new FormData(form);
+	for (var i = 0, frm = form.elements, l = frm.length, data = []; i < l; data.push(frm[i].name + "=" + frm[i].value, i++)){
+		if (frm[i].type == "file"){
+			for (var j = 0, frmData = new FormData(); j < l; j++){
+				if (frm[j].type == "file"){
+					for (var k = 0, f = frm[j].files, m = f.length; k < m; k++){
+						frmData.append(frm[j].name + k, f[k]);
+					}
+				}
+				else{
+					frmData.append(frm[j].name, frm[j].value);
+				}
+			}
+			return frmData;
+		}
 	}
-	for (var i = 0, l = form.elements.length, data = []; i < l; data.push(form.elements[i].name + "=" + form.elements[i].value, i++));
 	return data.join("&");
 };
 

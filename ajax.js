@@ -1,20 +1,20 @@
 /**
- * Clase Ajax
+ * Función Ajax
  *
  * @author	Alexis López Espinoza
  * @param	{object}	obj 		Objeto literal con los datos para realizar la petición
  * @return	{XHR} 		object 		Objeto XMLHttpRequest
- * @this        {Ajax} 					La clase Ajax
+ * @this	{Ajax} 					La clase Ajax
  * @version	1.0
  */
 
-/***************************************** CLASE AJAX *****************************************/
+/**************************************** FUNCIÓN AJAX ****************************************/
 "use strict";
 
 var Ajax = function(obj){
 	if (!(this instanceof Ajax)) return new Ajax(obj);
 	this.prepare(obj);
-	this.exec();
+	this.exec(obj.wait || false);
 	return this;
 };
 
@@ -28,8 +28,8 @@ Ajax.prototype = {
 		this.async = obj.async || true;
 		this.data = obj.data || null;
 		this.type = obj.type ? obj.type.toUpperCase() : "HTML";
-		this.header = obj.header === false ? false : obj.header || "application/x-www-form-urlencoded";
-
+		this.header = obj.header === false ? false : (typeof obj.header != "string" ? "application/x-www-form-urlencoded" : obj.header || "application/x-www-form-urlencoded");
+		
 		if (this.method == "GET"){
 			if (typeof this.data == "string"){
 				this.url += "?" + this.data;
@@ -54,23 +54,29 @@ Ajax.prototype = {
 		}
 	},
 
-	exec: function(){
+	exec: function(callback){
 		var self = this;
 		if (window.Promise){
 			this.promise = new Promise(function(resolve, reject){
-				self.cross(resolve, reject);
+				self.cross(resolve, reject, callback);
 			});
 		}
 		else{
-			self.cross();
+			self.cross(null, null, callback);
 		}
 	},
 
-	cross: function(d, f){
+	cross: function(d, f, c){
 		var self = this;
+
 		this.xhr.open(this.method, this.url, this.async);
+
 		if (this.header) this.xhr.setRequestHeader("Content-Type", this.header);
+
 		this.xhr.send(this.data);
+
+		c && this.xhr.addEventListener("progress", c, false);				
+
 		this.xhr.addEventListener("load", function(){
 			if (this.status == 200){
 				switch (self.type){
@@ -91,6 +97,7 @@ Ajax.prototype = {
 				if (window.Promise) f(self.response);
 			}
 		}, false);
+
 		this.xhr.addEventListener("error", function(){
 			self.response = this.statusText;
 			if (window.Promise) f(self.response);
@@ -146,13 +153,34 @@ Ajax.prototype = {
 };
 
 /************************************* MÉTODOS ESTÁTICOS *************************************/
-Ajax.serialize = function(form){
-	for (var i = 0, frm = form.elements, l = frm.length, data = []; i < l; data.push(frm[i].name + "=" + frm[i].value, i++)){
+Ajax.serialize = function(form /* or Array or Object */){
+	if (Array.isArray(form)){
+		for (var k = 0, arr = form, n = arr.length, o = []; k < n; k++){
+			if (arr[k] instanceof Object){
+				for (let x in arr[k]){
+					o.push(x + "[]=" + arr[k][x]);
+				}
+			}
+			else{
+				o.push("array[]=" + arr[k]);
+			}
+		}
+		return o.join("&");
+	}	
+
+	for (var i = 0, frm = form.elements, l = frm.length, data = []; i < l; i++){
+		if (["checkbox", "radio"].includes(frm[i].type) && !frm[i].checked) continue;
+		
 		if (frm[i].type == "file"){
 			for (var j = 0, frmData = new FormData(); j < l; j++){
 				if (frm[j].type == "file"){
-					for (var k = 0, f = frm[j].files, m = f.length; k < m; k++){
-						frmData.append(frm[j].name + k, f[k]);
+					if (frm[j].files.length < 2){
+						frmData.append(frm[j].name, frm[j].files[0]);
+					}
+					else{
+						for (var k = 0, f = frm[j].files, m = f.length; k < m; k++){
+							frmData.append(frm[j].name + k, f[k]);
+						}
 					}
 				}
 				else{
@@ -161,10 +189,13 @@ Ajax.serialize = function(form){
 			}
 			return frmData;
 		}
+		else{
+			data.push(frm[i].name + "=" + frm[i].value);
+		}
 	}
+
 	return data.join("&");
 };
-
 /*************************************** FORMA DE USO ***************************************
 Ajax({
 	url: La ruta del archivo de destino o el valor del atributo "action" del formulario.

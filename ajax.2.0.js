@@ -10,9 +10,9 @@
  * 
  *
  * @author	Alexis López Espinoza
- * @param	{opciones}	 Object 		Objeto literal con los datos para realizar la petición
- * @return	{response}   Promise 		Respuesta del método Fetch
- * @this	{Ajax}       Function		La función Ajax
+ * @param	{opciones}      Object          Objeto literal con los datos para realizar la petición
+ * @return	{response}      Promise         Respuesta del método Fetch
+ * @this	{Ajax}          Function        La función Ajax
  * @version	2.0
  */
 

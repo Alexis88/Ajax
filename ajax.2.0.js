@@ -37,7 +37,7 @@ Ajax.prototype = {
     flag: true,
 
     //Lista de métodos HTTP válidos
-    httpMethods: ["GET", "POST"],
+    httpMethods: ["GET", "POST", "PUT", "DELETE", "HEAD"],
 
     //Lista de tipos de respuesta válidos
     responseTypes: ["HTML", "JSON", "TEXT", "XML"],

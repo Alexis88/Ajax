@@ -10,9 +10,9 @@
  * 
  *
  * @author	Alexis López Espinoza
- * @param	{opciones}      Object          Objeto literal con los datos para realizar la petición
- * @return	{response}      Promise         Respuesta del método Fetch
- * @this	{Ajax}          Function        La función Ajax
+ * @param	{opciones}	 Object 		Objeto literal con los datos para realizar la petición
+ * @return	{response}   Promise 		Respuesta del método Fetch
+ * @this	{Ajax}       Function		La función Ajax
  * @version	2.0
  */
 
@@ -120,7 +120,9 @@ Ajax.prototype = {
         }
 
         //Los datos
-        this.options.body = this.data;
+        if (this.data !== null){
+            this.options.body = this.data;
+        }
 
 
         /* ENVÍO DE LOS DATOS */
@@ -185,35 +187,34 @@ Ajax.prototype = {
 
 //Da formato a los datos recibidos para ser enviados al lado del servidor
 Ajax.serialize = function (elemento){
+    //Objeto que almacenará los datos a enviar
+    let data = new FormData();
+
     //Si se trata de un Array
-    if (Ajax.typeOf(elemento, "array")){
-        let data = [];
-            
+    if (Ajax.typeOf(elemento, "array")){            
         //Se recorre el array y se asigna un par "variable=valor" al array "data"
         for (let i = 0, l = elemento.length; i < l; i++){
-            data.push("array[]=" + elemento[i]);
+            data.append("array[]=", elemento[i]);
         }
 
-        //Se devuelve una cadena de consulta a partir del array "data"
-        return data.join("&")
+        //Se devuelven los datos
+        return data;
     }
 
     //Si se trata de un Object
     if (Ajax.typeOf(elemento, "object")){
-        let data = [];
-            
         //Se recorre el objeto y se asigna un par "variable=valor" al array "data"
         for (let prop in elemento){
-             data.push(prop + "[]=" + elemento[prop]);
+             data.append(prop + "[]=", elemento[prop]);
         }
 
-        //Se devuelve una cadena de consulta a partir del array "data"
-        return data.join("&")
+        //Se devuelven los datos
+        return data;
     }
 
     //Si se trata de un Formulario
     if (Ajax.typeOf(elemento, "form")){
-        let data = new FormData(), aux = true;
+        let aux = true;
 
         //Se recorre el conjunto de elementos del formulario
         for (let i = 0, f = elemento.elements, l = f.length; i < l; i++){
@@ -269,7 +270,14 @@ Ajax.serialize = function (elemento){
 
     //Si se trata de una cadena
     if (Ajax.typeOf(elemento, "string")){
-        return elemento;
+        let arr = elemento.split("&"), aux;
+
+        for (let i = 0, l = arr.length; i < l; i++){
+            aux = arr[i].split("=");
+            data.append(aux[0], aux[1]);
+        }
+
+        return data;
     }        
 };
 

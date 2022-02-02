@@ -148,7 +148,7 @@ Ajax.prototype = {
             //Si se recibió la respuesta exitosamente
             if (response.ok >= 200 && response.ok <= 299){
                 switch (this.type){
-                    case "HTML": case "TEXT":
+                    case "HTML": case "TEXT": default:
                         response.text().then((htmlText) => callback(htmlText));
                         break;
 

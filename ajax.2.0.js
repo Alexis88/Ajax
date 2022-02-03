@@ -10,9 +10,9 @@
  * 
  *
  * @author	Alexis López Espinoza
- * @param	{opciones}	 Object 		Objeto literal con los datos para realizar la petición
- * @return	{response}   Promise 		Respuesta del método Fetch
- * @this	{Ajax}       Function		La función Ajax
+ * @param	{opciones}      Object          Objeto literal con los datos para realizar la petición
+ * @return	{response}      Promise         Respuesta del método Fetch
+ * @this	{Ajax}          Function        La función Ajax
  * @version	2.0
  */
 
@@ -33,20 +33,21 @@ let Ajax = function(opciones){
 
 /************************************* MÉTODOS DINÁMICOS *************************************/
 Ajax.prototype = {
-    //Comodín que permite o impide continuar con los procesos (true: permitir | false: impedir)
-    flag: true,
-
     //Lista de métodos HTTP válidos
     httpMethods: ["GET", "POST", "PUT", "DELETE", "HEAD"],
 
     //Lista de tipos de respuesta válidos
-    responseTypes: ["HTML", "JSON", "TEXT", "XML"],
-
-    //Opciones que se enviarán como segundo argumento al método Fetch
-    options: {},
+    responseTypes: ["HTML", "JSON", "TEXT", "XML"], 
 
     //Método que inicializa todo el proceso
     init: function(opciones){
+        //Comodín que permite o impide continuar con los procesos (true: permitir | false: impedir)
+        this.flag = true;
+
+        //Opciones que se enviarán como segundo argumento al método Fetch
+        this.options = {};
+
+
         /* LA URL DE DESTINO */
 
         //Si es una cadena no vacía, se la establece la URL recibida
@@ -100,7 +101,13 @@ Ajax.prototype = {
 
         //Si la URL no contiene una cadena de consulta y si se recibieron datos, se serializan los datos recibidos y se los establece, caso contrario, se asigna el valor "false"
         if (opciones.url.indexOf("?") < 0 && opciones.data){
-            this.data = Ajax.serialize(opciones.data);
+            this.data = Ajax.serialize(opciones.data, this.method);
+
+            //Si el método de envío no permite adjuntar los datos por separado
+            if (["GET", "HEAD"].indexOf(this.method) > -1){
+                this.url += "?" + this.data;
+                this.data = null;
+            }
         }
         else{
             this.data = null;
@@ -112,15 +119,17 @@ Ajax.prototype = {
         //El método HTTP
         this.options.method = this.method;
 
-        //Las cabeceras
-        if (this.headers){
+        //Las cabeceras (si se permite añadir)
+        if (this.headers && Ajax.aux){
             this.options.headers = {
                 "Content-Type": this.headers
             };
         }
 
+
         //Los datos
         if (this.data !== null){
+            //Si hay datos para enviar, se asignan a la propiedad "body"
             this.options.body = this.data;
         }
 
@@ -186,35 +195,63 @@ Ajax.prototype = {
 /************************************* MÉTODOS ESTÁTICOS *************************************/
 
 //Da formato a los datos recibidos para ser enviados al lado del servidor
-Ajax.serialize = function (elemento){
-    //Objeto que almacenará los datos a enviar
-    let data = new FormData();
+Ajax.serialize = function (elemento, metodo){
+    //Objeto o array que almacenará los datos a enviar, y el comodín que decidirá qué datos se devolverán
+    let dataBody = new FormData(), dataNoBody = [], flag;
 
     //Si se trata de un Array
     if (Ajax.typeOf(elemento, "array")){            
         //Se recorre el array y se asigna un par "variable=valor" al array "data"
         for (let i = 0, l = elemento.length; i < l; i++){
-            data.append("array[]=", elemento[i]);
+            //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
+            if ((metodo && ["GET", "HEAD"].indexOf(metodo.toUpperCase()) > -1) || !metodo){
+                dataNoBody.push("array[]=" + elemento[i]);
+                flag = "no";
+            }
+            //Si el método de envío es POST, PUT O DELETE
+            else{
+                dataBody.append("array[]=", elemento[i]);
+                flag = "yes";
+            }
         }
 
-        //Se devuelven los datos
-        return data;
+        //Se devuelven los datos, según sea el método HTTP elegido (Par: GET o HEAD | Impar o sin método: POST, PUT O DELETE)
+        if (flag == "no"){
+            return dataNoBody.join("&");
+        }
+        else{
+            return dataBody;
+        }
     }
 
     //Si se trata de un Object
     if (Ajax.typeOf(elemento, "object")){
         //Se recorre el objeto y se asigna un par "variable=valor" al array "data"
         for (let prop in elemento){
-             data.append(prop + "[]=", elemento[prop]);
+            //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
+            if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
+                dataNoBody.push(prop + "=" + elemento[prop]);
+                flag = "no";
+            }
+            //Si el método de envío es POST, PUT O DELETE
+            else{
+                dataBody.append(prop + "=", elemento[prop]);
+                flag = "yes";
+            }
         }
 
-        //Se devuelven los datos
-        return data;
+        //Se devuelven los datos, según sea el método HTTP elegido (Par: GET o HEAD | Impar o sin método: POST, PUT O DELETE)
+        if (flag == "no"){
+            return dataNoBody.join("&");
+        }
+        else{
+            return dataBody;
+        }
     }
 
     //Si se trata de un Formulario
     if (Ajax.typeOf(elemento, "form")){
-        let aux = true;
+        Ajax.aux = true;
 
         //Se recorre el conjunto de elementos del formulario
         for (let i = 0, f = elemento.elements, l = f.length; i < l; i++){
@@ -222,28 +259,38 @@ Ajax.serialize = function (elemento){
             if (["checkbox", "radio"].indexOf(f[i].type) > -1) continue;
 
             //Se establece como cabecera el valor de formulario (mientras no haya un elemento File)
-            if (aux){
+            if (Ajax.aux){
                 Ajax.headers = "application/x-www-form-urlencoded";
             }
 
             //Si es un elementos File, se recorre el conjunto de archivos que contiene
             if (f[i].type == "file"){
-                //Si solo es un archivo, se lo añade directamente
-                if (f[i].files.length === 1){
-                    data.append(f[i].name, f[i].files[0]);
+                //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
+                if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
+                    continue;
+                    flag = "no";
                 }
-                //Caso contrario, se añade todos los archivos
+                //Si el método de envío es POST, PUT O DELETE
                 else{
-                    for (let j = 0, m = f[i].files.length; j < m; j++){
-                        data.append(f[i].name + j, f[i].files[j]);
+                    //Si solo es un archivo, se lo añade directamente
+                    if (f[i].files.length > 0 && f[i].files.length < 2){
+                        dataBody.append(f[i].name, f[i].files[0]);
                     }
+                    //Caso contrario, se añade todos los archivos
+                    else{
+                        for (let j = 0, m = f[i].files.length; j < m; j++){
+                            dataBody.append(f[i].name + j, f[i].files[j]);
+                        }
+                    }
+
+                    flag = "yes";
                 }
 
                 //Se quitan las cabeceras
                 Ajax.headers = false;
 
                 //Ya no se puede añadir cabeceras
-                aux = false;
+                Ajax.aux = false;
 
                 //Se pasa a la siguiente iteración
                 continue;
@@ -255,29 +302,70 @@ Ajax.serialize = function (elemento){
                 return false;
             }
 
-            //Si se trata de cualquier otro elemento, se añade el valor
-            data.append(f[i].name, f[i].value);
+            //Si se trata de cualquier otro tipo de elemento, se añade el valor
+            //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
+            if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
+                dataNoBody.push(f[i].name + "=" + f[i].value);
+                flag = "no";
+            }
+            //Si el método de envío es POST, PUT O DELETE
+            else{
+                dataBody.append(f[i].name, f[i].value);
+                flag = "yes";
+            }
         }
 
-        //Se devuelven los datos
-        return data;
+        //Se devuelven los datos, según sea el método HTTP elegido (Par: GET o HEAD | Impar o sin método: POST, PUT O DELETE)
+        if (flag == "no"){
+            return dataNoBody.join("&");
+        }
+        else{
+            return dataBody;
+        }
     }
 
     //Si se trata de un JSON
     if (Ajax.typeOf(elemento, "json")){
-        return JSON.stringify(elemento);
+        //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
+        if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
+            return "json=" + JSON.stringify(elemento);
+        }
+        //Si el método de envío es POST, PUT O DELETE
+        else{
+            dataBody.append("json", JSON.stringify(elemento));
+            return dataBody;
+        }
     }
 
     //Si se trata de una cadena
     if (Ajax.typeOf(elemento, "string")){
+        //Si no es una cadena de consulta
+        if (elemento.indexOf("=") < 0) return null;
+
         let arr = elemento.split("&"), aux;
 
         for (let i = 0, l = arr.length; i < l; i++){
             aux = arr[i].split("=");
-            data.append(aux[0], aux[1]);
+
+            //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
+            if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
+                dataNoBody.push(aux[0] + "=" + aux[1]);
+                flag = "no";
+            }
+            //Si el método de envío es POST, PUT O DELETE
+            else{
+                dataBody.append(aux[0], aux[1]);
+                flag = "yes";
+            }
         }
 
-        return data;
+        //Se devuelven los datos, según sea el método HTTP elegido (Par: GET o HEAD | Impar o sin método: POST, PUT O DELETE)
+        if (flag == "no"){
+            return dataNoBody.join("&");
+        }
+        else{
+            return dataBody;
+        }
     }        
 };
 

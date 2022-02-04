@@ -8,6 +8,27 @@
  * 
  * La versión 1.0 se basa en el objeto XMLHttpRequest, mientras que esta versión 2.0 se basa en el método Fetch.
  * 
+ * Forma de uso:
+ * 
+ * Ajax({
+ *     url: "La ruta de destino",
+ *     method: "El método de envío (por defecto: GET)",
+ *     data: Los datos a enviar,
+ *     type: "El tipo de respuesta a recibir (por defecto: TEXT)",
+ *     headers: ["Nombre de la cabecera", "Valor de la cabecera"],
+ *     config: { //Otros valores de configuración de la petición
+ *         mode: Por defecto es CORS,
+ *         cache: Por defecto es DEFAULT,
+ *         credentials: Por defecto es SAME-ORIGIN,
+ *         redirect: Por defecto es FOLLOW,
+ *         referrerPolicy: Por defecto es NO-REFERRER-WHEN-DOWNGRADE
+ *     }
+ * }).done(function(respuesta){
+ *     //Aquí se puede tratar la respuesta del servidor
+ * }).fail(function(error){
+ *     //Aquí se puede tratar el mensaje del error producido
+ * });
+ * 
  *
  * @author	Alexis López Espinoza
  * @param	{opciones}	 Object 		Objeto literal con los datos para realizar la petición
@@ -133,6 +154,32 @@ Ajax.prototype = {
             //Si hay datos para enviar, se asignan a la propiedad "body"
             this.options.body = this.data;
         }
+
+
+        //Otras opciones de configuración
+        
+        //Opciones con sus valores por defecto
+        let opts = [
+            {opt: "mode", def: "cors"},
+            {opt: "cache", def: "default"},
+            {opt: "credentials", def: "same-origin"},
+            {opt: "redirect", def: "follow"},
+            {opt: "referrer", def: "init"},
+            {opt: "referrerPolicy", def: "no-referrer-when-downgrade"},
+            {opt: "keepalive", def: false}
+        ];
+            
+        //Se recorre el array de opciones
+        opts.forEach((o) => {
+            //Si se ha recibido un conjunto de opciones de configuración y la opción de la iteración actual se encuentra en dicho conjunto, se lo establece
+            if (opciones.config && opciones.config.hasOwnProperty(o.opt)){
+                this.options[o.opt] = opciones.config[o.opt];
+            }
+            //Caso contrario, se establece el valor por defecto
+            else{
+                this.options[o.opt] = o.opt.def;
+            }
+        });
 
 
         /* ENVÍO DE LOS DATOS */

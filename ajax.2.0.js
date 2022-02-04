@@ -10,9 +10,9 @@
  * 
  *
  * @author	Alexis López Espinoza
- * @param	{opciones}      Object          Objeto literal con los datos para realizar la petición
- * @return	{response}      Promise         Respuesta del método Fetch
- * @this	{Ajax}          Function        La función Ajax
+ * @param	{opciones}	 Object 		Objeto literal con los datos para realizar la petición
+ * @return	{response}   Promise 		Respuesta del método Fetch
+ * @this	{Ajax}       Function		La función Ajax
  * @version	2.0
  */
 
@@ -101,7 +101,8 @@ Ajax.prototype = {
 
         //Si la URL no contiene una cadena de consulta y si se recibieron datos, se serializan los datos recibidos y se los establece, caso contrario, se asigna el valor "false"
         if (opciones.url.indexOf("?") < 0 && opciones.data){
-            this.data = Ajax.serialize(opciones.data, this.method);
+            //Se pasan como argumentos los datos, el método y la instancia actual de la función
+            this.data = Ajax.serialize(opciones.data, this.method, this);
 
             //Si el método de envío no permite adjuntar los datos por separado
             if (["GET", "HEAD"].indexOf(this.method) > -1){
@@ -120,7 +121,7 @@ Ajax.prototype = {
         this.options.method = this.method;
 
         //Las cabeceras (si se permite añadir)
-        if (this.headers && Ajax.aux){
+        if (this.headers && self.letHeads){
             this.options.headers = {
                 "Content-Type": this.headers
             };
@@ -195,7 +196,7 @@ Ajax.prototype = {
 /************************************* MÉTODOS ESTÁTICOS *************************************/
 
 //Da formato a los datos recibidos para ser enviados al lado del servidor
-Ajax.serialize = function (elemento, metodo){
+Ajax.serialize = function (elemento, metodo, self){
     //Objeto o array que almacenará los datos a enviar, y el comodín que decidirá qué datos se devolverán
     let dataBody = new FormData(), dataNoBody = [], flag;
 
@@ -251,7 +252,8 @@ Ajax.serialize = function (elemento, metodo){
 
     //Si se trata de un Formulario
     if (Ajax.typeOf(elemento, "form")){
-        Ajax.aux = true;
+        //Si se ha recibido una instancia de la función
+        if (self) self.letHeads = true;
 
         //Se recorre el conjunto de elementos del formulario
         for (let i = 0, f = elemento.elements, l = f.length; i < l; i++){
@@ -259,8 +261,8 @@ Ajax.serialize = function (elemento, metodo){
             if (["checkbox", "radio"].indexOf(f[i].type) > -1) continue;
 
             //Se establece como cabecera el valor de formulario (mientras no haya un elemento File)
-            if (Ajax.aux){
-                Ajax.headers = "application/x-www-form-urlencoded";
+            if (self && self.letHeads){
+                self.headers = "application/x-www-form-urlencoded";
             }
 
             //Si es un elementos File, se recorre el conjunto de archivos que contiene
@@ -287,10 +289,10 @@ Ajax.serialize = function (elemento, metodo){
                 }
 
                 //Se quitan las cabeceras
-                Ajax.headers = false;
+                if (self) self.headers = false;
 
                 //Ya no se puede añadir cabeceras
-                Ajax.aux = false;
+                if (self) self.letHeads = false;
 
                 //Se pasa a la siguiente iteración
                 continue;
@@ -298,7 +300,7 @@ Ajax.serialize = function (elemento, metodo){
 
             //Si es un elemento con atributo "required" y está vacío, se detiene el proceso
             if (f[i].required && !f[i].value.length){
-                Ajax.flag = false;
+                if (self) self.flag = false;
                 return false;
             }
 

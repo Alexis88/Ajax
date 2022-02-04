@@ -15,7 +15,7 @@
  *     method: "El método de envío (por defecto: GET)",
  *     data: Los datos a enviar,
  *     type: "El tipo de respuesta a recibir (por defecto: TEXT)",
- *     headers: ["Nombre de la cabecera", "Valor de la cabecera"],
+ *     headers: [{name: "Nombre de la cabecera", value: "Valor de la cabecera"}],
  *     config: { //Otros valores de configuración de la petición
  *         mode: Por defecto es CORS,
  *         cache: Por defecto es DEFAULT,
@@ -112,7 +112,7 @@ Ajax.prototype = {
          /* LAS CABECERAS A ESTABLECER */
 
         //Si es una cadena no vacía, se establece como cabecera. Si no se recibe nada o la cadena está vacía, no se establecen cabeceras
-        if (Ajax.typeOf(opciones.headers, "string") && opciones.headers.length){
+        if (Ajax.typeOf(opciones.headers, "array") && opciones.headers.length){
             this.headers = opciones.headers;
         }
         else{
@@ -144,10 +144,14 @@ Ajax.prototype = {
         this.options.method = this.method;
 
         //Las cabeceras (si se permite añadir)
-        if (this.headers && self.letHeads){
-            this.options.headers = {
-                "Content-Type": this.headers
-            };
+        if (this.headers && this.letHeads){
+            this.options.headers = {};
+            this.headers.forEach((header) => {
+                this.options.headers[header.name] = header.value;
+            });
+        }
+        else{
+            delete this.options.headers;
         }
 
 
@@ -179,7 +183,7 @@ Ajax.prototype = {
             }
             //Caso contrario, se establece el valor por defecto
             else{
-                this.options[o.opt] = o.opt.def;
+                this.options[o.opt] = o.def;
             }
         });
 
@@ -307,12 +311,7 @@ Ajax.serialize = function (elemento, metodo, self){
         //Se recorre el conjunto de elementos del formulario
         for (let i = 0, f = elemento.elements, l = f.length; i < l; i++){
             //Si es un radiobox o checkbox y no está marcado, se ignora
-            if (["checkbox", "radio"].indexOf(f[i].type) > -1) continue;
-
-            //Se establece como cabecera el valor de formulario (mientras no haya un elemento File)
-            if (self && self.letHeads){
-                self.headers = "application/x-www-form-urlencoded";
-            }
+            if (["checkbox", "radio"].indexOf(f[i].type) > -1) continue;  
 
             //Si es un elementos File, se recorre el conjunto de archivos que contiene
             if (f[i].type == "file"){
@@ -364,6 +363,11 @@ Ajax.serialize = function (elemento, metodo, self){
                 dataBody.append(f[i].name, f[i].value);
                 flag = "yes";
             }
+        }
+
+        //Se establece como cabecera el valor de formulario (mientras no haya un elemento File)
+        if (self && self.letHeads){
+            self.headers.push({name: "Content-type", value: "application/x-www-form-urlencoded"});
         }
 
         //Se devuelven los datos, según sea el método HTTP elegido (Par: GET o HEAD | Impar o sin método: POST, PUT O DELETE)

@@ -330,7 +330,7 @@ Ajax.serialize = function (elemento, metodo, self){
                     //Caso contrario, se añade todos los archivos
                     else{
                         for (let j = 0, m = f[i].files.length; j < m; j++){
-                            dataBody.append(f[i].name + j, f[i].files[j]);
+                            dataBody.append(f[i].name + "[]", f[i].files[j]);
                         }
                     }
 

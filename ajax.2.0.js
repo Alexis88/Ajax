@@ -21,7 +21,9 @@
  *         cache: Por defecto es DEFAULT,
  *         credentials: Por defecto es SAME-ORIGIN,
  *         redirect: Por defecto es FOLLOW,
- *         referrerPolicy: Por defecto es NO-REFERRER-WHEN-DOWNGRADE
+ *         referrer: Por defecto es INIT,
+ *         referrerPolicy: Por defecto es NO-REFERRER-WHEN-DOWNGRADE,
+ *         keepalive: Por defecto es FALSE
  *     }
  * }).done(function(respuesta){
  *     //Aquí se puede tratar la respuesta del servidor

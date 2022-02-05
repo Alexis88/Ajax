@@ -32,11 +32,11 @@
  * });
  * 
  *
- * @author	Alexis López Espinoza
- * @param	{opciones}	 Object 		Objeto literal con los datos para realizar la petición
- * @return	{response}   Promise 		Respuesta del método Fetch
- * @this	{Ajax}       Function		La función Ajax
- * @version	2.0
+ * @author  Alexis López Espinoza
+ * @param   {opciones}   Object         Objeto literal con los datos para realizar la petición
+ * @return  {response}   Promise        Respuesta del método Fetch
+ * @this    {Ajax}       Function       La función Ajax
+ * @version 2.0
  */
 
  /* FUNCIÓN AJAX */
@@ -276,8 +276,7 @@ Ajax.serialize = function (elemento, metodo, self){
             return dataNoBody.join("&");
         }
         else{
-            let parsedData = new URLSearchParams(dataBody);
-            return parsedData;
+            return dataBody;
         }
     }
 
@@ -302,8 +301,7 @@ Ajax.serialize = function (elemento, metodo, self){
             return dataNoBody.join("&");
         }
         else{
-            let parsedData = new URLSearchParams(dataBody);
-            return parsedData;
+            return dataBody;
         }
     }
 
@@ -369,18 +367,12 @@ Ajax.serialize = function (elemento, metodo, self){
             }
         }
 
-        //Se establece como cabecera el valor de formulario (mientras no haya un elemento File)
-        if (self && self.letHeads){
-            self.headers.push({name: "Content-type", value: "application/x-www-form-urlencoded"});
-        }
-
         //Se devuelven los datos, según sea el método HTTP elegido (Par: GET o HEAD | Impar o sin método: POST, PUT O DELETE)
         if (flag == "no"){
             return dataNoBody.join("&");
         }
         else{
-            let parsedData = new URLSearchParams(dataBody);
-            return parsedData;
+            return dataBody;
         }
     }
 
@@ -393,8 +385,7 @@ Ajax.serialize = function (elemento, metodo, self){
         //Si el método de envío es POST, PUT O DELETE
         else{
             dataBody.append("json", JSON.stringify(elemento));
-            let parsedData = new URLSearchParams(dataBody);
-            return parsedData;
+            return dataBody;
         }
     }
 
@@ -425,8 +416,7 @@ Ajax.serialize = function (elemento, metodo, self){
             return dataNoBody.join("&");
         }
         else{
-            let parsedData = new URLSearchParams(dataBody);
-            return parsedData;
+            return dataBody;
         }
     }        
 };

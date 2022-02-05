@@ -213,7 +213,7 @@ Ajax.prototype = {
         //En caso de éxito, se recibe la respuesta según el tipo establecido
         this.xhr.then((response) => {
             //Si se recibió la respuesta exitosamente
-            if (response.ok >= 200 && response.ok <= 299){
+            if (response.ok){
                 switch (this.type){
                     case "HTML": case "TEXT": default:
                         response.text().then((htmlText) => callback(htmlText));

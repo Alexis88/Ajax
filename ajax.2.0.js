@@ -266,7 +266,7 @@ Ajax.serialize = function (elemento, metodo, self){
             }
             //Si el método de envío es POST, PUT O DELETE
             else{
-                dataBody.append("array[]=", elemento[i]);
+                dataBody.append("array[]", elemento[i]);
                 flag = "yes";
             }
         }
@@ -291,7 +291,7 @@ Ajax.serialize = function (elemento, metodo, self){
             }
             //Si el método de envío es POST, PUT O DELETE
             else{
-                dataBody.append(prop + "=", elemento[prop]);
+                dataBody.append(prop, elemento[prop]);
                 flag = "yes";
             }
         }

@@ -102,7 +102,7 @@ Ajax.prototype = {
         if (Ajax.typeOf(opciones.type, "string") 
             && opciones.type.length 
             && this.responseTypes.indexOf(opciones.type.toUpperCase()) > -1){
-            this.type = opciones.type;
+            this.type = opciones.type.toUpperCase();
         }
         else{
             this.type = "TEXT";
@@ -219,7 +219,7 @@ Ajax.prototype = {
                         response.text().then((htmlText) => callback(htmlText));
                         break;
 
-                    case "JSON":
+                    case "JSON":                        
                         response.json().then((json) => callback(json));
                         break;
 

@@ -32,11 +32,11 @@
  * });
  * 
  *
- * @author	Alexis López Espinoza
- * @param	{opciones}	 Object 		Objeto literal con los datos para realizar la petición
- * @return	{response}   Promise 		Respuesta del método Fetch
- * @this	{Ajax}       Function		La función Ajax
- * @version	2.0
+ * @author  Alexis López Espinoza
+ * @param   {opciones}   Object         Objeto literal con los datos para realizar la petición
+ * @return  {response}   Promise        Respuesta del método Fetch
+ * @this    {Ajax}       Function       La función Ajax
+ * @version 2.0
  */
 
  /* FUNCIÓN AJAX */
@@ -116,7 +116,7 @@ Ajax.prototype = {
             this.headers = opciones.headers;
         }
         else{
-            this.headers = false;
+            this.headers = [];
         }
 
 
@@ -144,7 +144,7 @@ Ajax.prototype = {
         this.options.method = this.method;
 
         //Las cabeceras (si se permite añadir)
-        if (this.headers && this.letHeads){
+        if (this.headers.length && this.letHeads){
             this.options.headers = {};
             this.headers.forEach((header) => {
                 this.options.headers[header.name] = header.value;
@@ -337,7 +337,7 @@ Ajax.serialize = function (elemento, metodo, self){
                 }
 
                 //Se quitan las cabeceras
-                if (self) self.headers = false;
+                if (self) self.headers = [];
 
                 //Ya no se puede añadir cabeceras
                 if (self) self.letHeads = false;

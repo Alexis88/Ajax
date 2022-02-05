@@ -317,8 +317,8 @@ Ajax.serialize = function (elemento, metodo, self){
             if (f[i].type == "file"){
                 //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
                 if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
-                    continue;
                     flag = "no";
+                    continue;                    
                 }
                 //Si el método de envío es POST, PUT O DELETE
                 else{

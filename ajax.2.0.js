@@ -13,7 +13,7 @@
  * Ajax({
  *     url: "La ruta de destino",
  *     method: "El método de envío (por defecto: GET)",
- *     data: Los datos a enviar,
+ *     data: Los datos a enviar, (si no se adjuntan, no se considera este atributo)
  *     type: "El tipo de respuesta a recibir (por defecto: TEXT)",
  *     headers: [{name: "Nombre de la cabecera", value: "Valor de la cabecera"}],
  *     config: { //Otros valores de configuración de la petición

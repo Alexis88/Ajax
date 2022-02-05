@@ -348,12 +348,6 @@ Ajax.serialize = function (elemento, metodo, self){
                 continue;
             }
 
-            //Si es un elemento con atributo "required" y está vacío, se detiene el proceso
-            if (f[i].required && !f[i].value.length){
-                if (self) self.flag = false;
-                return false;
-            }
-
             //Si se trata de cualquier otro tipo de elemento, se añade el valor
             //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
             if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){

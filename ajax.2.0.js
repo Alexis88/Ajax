@@ -32,11 +32,11 @@
  * });
  * 
  *
- * @author  Alexis López Espinoza
- * @param   {opciones}   Object         Objeto literal con los datos para realizar la petición
- * @return  {response}   Promise        Respuesta del método Fetch
- * @this    {Ajax}       Function       La función Ajax
- * @version 2.0
+ * @author	Alexis López Espinoza
+ * @param	{opciones}	 Object 		Objeto literal con los datos para realizar la petición
+ * @return	{response}   Promise 		Respuesta del método Fetch
+ * @this	{Ajax}       Function		La función Ajax
+ * @version	2.0
  */
 
  /* FUNCIÓN AJAX */
@@ -142,6 +142,8 @@ Ajax.prototype = {
 
         //El método HTTP
         this.options.method = this.method;
+
+
 
         //Las cabeceras (si se permite añadir)
         if (this.headers.length && this.letHeads){
@@ -274,7 +276,8 @@ Ajax.serialize = function (elemento, metodo, self){
             return dataNoBody.join("&");
         }
         else{
-            return dataBody;
+            let parsedData = new URLSearchParams(dataBody);
+            return parsedData;
         }
     }
 
@@ -299,7 +302,8 @@ Ajax.serialize = function (elemento, metodo, self){
             return dataNoBody.join("&");
         }
         else{
-            return dataBody;
+            let parsedData = new URLSearchParams(dataBody);
+            return parsedData;
         }
     }
 
@@ -375,7 +379,8 @@ Ajax.serialize = function (elemento, metodo, self){
             return dataNoBody.join("&");
         }
         else{
-            return dataBody;
+            let parsedData = new URLSearchParams(dataBody);
+            return parsedData;
         }
     }
 
@@ -388,7 +393,8 @@ Ajax.serialize = function (elemento, metodo, self){
         //Si el método de envío es POST, PUT O DELETE
         else{
             dataBody.append("json", JSON.stringify(elemento));
-            return dataBody;
+            let parsedData = new URLSearchParams(dataBody);
+            return parsedData;
         }
     }
 
@@ -419,7 +425,8 @@ Ajax.serialize = function (elemento, metodo, self){
             return dataNoBody.join("&");
         }
         else{
-            return dataBody;
+            let parsedData = new URLSearchParams(dataBody);
+            return parsedData;
         }
     }        
 };

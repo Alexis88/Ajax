@@ -434,7 +434,7 @@ Ajax.typeOf = (elemento, tipo) => {
             break;    
 
         case "NUMBER":
-            return {}.toString.call(elemento) == "[object Number]";
+            return {}.toString.call(Number(elemento)) == "[object Number]" && /[0-9]/gi.test(Number(elemento));
             break;
 
         case "STRING":

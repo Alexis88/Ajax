@@ -229,7 +229,7 @@ Ajax.prototype = {
                 }
             }
             else{
-                console.log(response.statusText);
+                callback("Error " + response.status + ": " + response.statusText);
             }
         });
 

@@ -6,7 +6,7 @@
  * el proceso de realización de peticiones asíncronas, con algunas de las facilidades que proporciona 
  * el método de jQuery, pero sin la necesidad de importar toda la librería.
  * 
- * La versión 1.0 se basa en el objeto XMLHttpRequest, mientras que esta versión 2.0 se basa en el método Fetch.
+ * La versión 1.0 se basa en el objeto XMLHttpRequest, mientras que esta versión 2.0 se basa en la API Fetch.
  * 
  * Forma de uso:
  * 
@@ -64,9 +64,6 @@ Ajax.prototype = {
 
     //Método que inicializa todo el proceso
     init: function(opciones){
-        //Comodín que permite o impide continuar con los procesos (true: permitir | false: impedir)
-        this.flag = true;
-
         //Opciones que se enviarán como segundo argumento al método Fetch
         this.options = {};
 
@@ -75,7 +72,7 @@ Ajax.prototype = {
 
         //Si es una cadena no vacía, se la establece la URL recibida
         if (Ajax.typeOf(opciones.url, "string") && opciones.url.length){
-            this.url = opciones.url.toLowerCase();
+            this.url = opciones.url;
         }
         else{
             return false;
@@ -192,10 +189,7 @@ Ajax.prototype = {
 
         /* ENVÍO DE LOS DATOS */
 
-        //Si el comodín permite enviar los datos, se realiza el envío
-        if (this.flag){
-            this.send();
-        }
+        this.send();
 
         //Se devuelve una instancia del método Fetch
         return this;
@@ -211,7 +205,7 @@ Ajax.prototype = {
 
     done: function(callback){
         //En caso de éxito, se recibe la respuesta según el tipo establecido
-        this.xhr.then((response) => {
+        this.xhr && this.xhr.then((response) => {
             //Si se recibió la respuesta exitosamente
             if (response.ok){
                 switch (this.type){
@@ -294,6 +288,28 @@ Ajax.serialize = function (elemento, metodo, self){
                 dataBody.append(prop, elemento[prop]);
                 flag = "yes";
             }
+        }
+
+        //Se devuelven los datos, según sea el método HTTP elegido (Par: GET o HEAD | Impar o sin método: POST, PUT O DELETE)
+        if (flag == "no"){
+            return dataNoBody.join("&");
+        }
+        else{
+            return dataBody;
+        }
+    }
+
+    //Si se trata de un objeto FormData
+    if (Ajax.typeOf(elemento, "formdata")){
+        //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
+        if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
+            for (let prop of elemento.entries()){
+                dataNoBody.push(aux[0] + "=" + aux[1]);
+                flag = "no";    
+            }            
+        }
+        else{
+            dataBody = elemento;
         }
 
         //Se devuelven los datos, según sea el método HTTP elegido (Par: GET o HEAD | Impar o sin método: POST, PUT O DELETE)
@@ -433,8 +449,12 @@ Ajax.typeOf = (elemento, tipo) => {
             return {}.toString.call(elemento) == "[object HTMLFormElement]";
             break;    
 
+        case "FORMDATA":
+            return {}.toString.call(elemento) == "[object FormData]";
+            break;
+
         case "NUMBER":
-            return {}.toString.call(Number(elemento)) == "[object Number]" && /^[0-9]*$/gi.test(Number(elemento));
+            return {}.toString.call(Number(elemento)) == "[object Number]" && /^[0-9\.]*$/gi.test(Number(elemento));
             break;
 
         case "STRING":

@@ -121,8 +121,8 @@ Ajax.prototype = {
 
         //Si la URL no contiene una cadena de consulta y si se recibieron datos, se serializan los datos recibidos y se los establece, caso contrario, se asigna el valor "false"
         if (opciones.url.indexOf("?") < 0 && opciones.data){
-            //Se pasan como argumentos los datos, el método y la instancia actual de la función
-            this.data = Ajax.serialize(opciones.data, this.method, this);
+            //Se pasan como argumentos los datos, el método, la instancia actual de la función y el tipo de respuesta a obtener
+            this.data = Ajax.serialize(opciones.data, this.method, this, opciones.type);
 
             //Si el método de envío no permite adjuntar los datos por separado
             if (["GET", "HEAD"].indexOf(this.method) > -1){
@@ -139,7 +139,6 @@ Ajax.prototype = {
 
         //El método HTTP
         this.options.method = this.method;
-
 
 
         //Las cabeceras (si se permite añadir)
@@ -161,7 +160,7 @@ Ajax.prototype = {
         }
 
 
-        //Otras opciones de configuración
+        /* Otras opciones de configuración */
         
         //Opciones con sus valores por defecto
         let opts = [
@@ -186,6 +185,20 @@ Ajax.prototype = {
             }
         });
 
+        
+        /* CANCELACIÓN DE ENVÍO (EN CASO SE REQUIERA) */
+
+        this.control = new AbortController(); //Control para abortar la petición
+        this.options.signal = this.control.signal;
+
+        //Si el usuario pulsa la tecla ESC, se abortará la petición
+        window.addEventListener("keyup", e => {
+            if (e.which == 27 && this.control){
+                this.cancel();                
+                e.stopImmediatePropagation();
+            }
+        }, false);
+
 
         /* ENVÍO DE LOS DATOS */
 
@@ -193,6 +206,13 @@ Ajax.prototype = {
 
         //Se devuelve una instancia del método Fetch
         return this;
+    },
+
+    cancel: _ => {
+        if (this.control && this.control.abort()){
+            console.log("Se canceló la petición");
+            this.control = null;
+        }
     },
 
     send: function(){
@@ -205,25 +225,26 @@ Ajax.prototype = {
 
     done: function(callback){
         //En caso de éxito, se recibe la respuesta según el tipo establecido
-        this.xhr && this.xhr.then((response) => {
+        this.xhr?.then(response => {
             //Si se recibió la respuesta exitosamente
             if (response.ok){
                 switch (this.type){
                     case "HTML": case "TEXT": default:
-                        response.text().then((htmlText) => callback(htmlText));
+                        response.text().then(htmlText => callback(htmlText));
                         break;
 
                     case "JSON":                        
-                        response.json().then((json) => callback(json));
+                        response.json().then(json => callback(json));
                         break;
 
                     case "XML":
-                        response.text().then((xml) => callback(new window.DOMParser().parseFromString(xml, "text/xml")));
+                        response.text().then(xml => callback(new window.DOMParser().parseFromString(xml, "text/xml")));
                         break;
                 }
             }
             else{
-                callback("Error " + response.status + ": " + response.statusText);
+                callback({error: true});
+                console.log("Error " + response.status + (response.statusText.length ? ": " + response.statusText : ""));
             }
         });
 
@@ -233,7 +254,7 @@ Ajax.prototype = {
 
     fail: function(callback){
         //En caso de error, se muestra un mensaje acerca del error producido
-        this.xhr.catch((error) => {
+        this.xhr?.catch(error => {
             callback(error);
         });
 
@@ -245,9 +266,15 @@ Ajax.prototype = {
 /************************************* MÉTODOS ESTÁTICOS *************************************/
 
 //Da formato a los datos recibidos para ser enviados al lado del servidor
-Ajax.serialize = function (elemento, metodo, self){
+Ajax.serialize = function (elemento /* Formulario/Datos */, metodo, self, tipo /* El tipo de dato (opcional) */){
     //Objeto o array que almacenará los datos a enviar, y el comodín que decidirá qué datos se devolverán
     let dataBody = new FormData(), dataNoBody = [], flag;
+
+    //Si el tipo de respuesta a obtener es XML, se pasa directamente el valor a procesar
+    if (tipo && tipo.toUpperCase() == "XML"){
+        self.letHeads = true;
+        return elemento;
+    }
 
     //Si se trata de un Array
     if (Ajax.typeOf(elemento, "array")){            
@@ -304,7 +331,7 @@ Ajax.serialize = function (elemento, metodo, self){
         //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
         if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
             for (let prop of elemento.entries()){
-                dataNoBody.push(aux[0] + "=" + aux[1]);
+                dataNoBody.push(prop[0] + "=" + prop[1]);
                 flag = "no";    
             }            
         }

@@ -174,7 +174,7 @@ Ajax.prototype = {
         ];
             
         //Se recorre el array de opciones
-        opts.forEach((o) => {
+        opts.forEach(o => {
             //Si se ha recibido un conjunto de opciones de configuración y la opción de la iteración actual se encuentra en dicho conjunto, se lo establece
             if (opciones.config && opciones.config.hasOwnProperty(o.opt)){
                 this.options[o.opt] = opciones.config[o.opt];
@@ -193,8 +193,8 @@ Ajax.prototype = {
 
         //Si el usuario pulsa la tecla ESC, se abortará la petición
         window.addEventListener("keyup", e => {
-            if (e.which == 27 && this.control){
-                this.cancel();                
+            if (e.which == 27 && Ajax.control){
+                Ajax.cancel();                
                 e.stopImmediatePropagation();
             }
         }, false);

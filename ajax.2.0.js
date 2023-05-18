@@ -193,8 +193,8 @@ Ajax.prototype = {
 
         //Si el usuario pulsa la tecla ESC, se abortará la petición
         window.addEventListener("keyup", e => {
-            if (e.which == 27 && Ajax.control){
-                Ajax.cancel();                
+            if (e.which == 27 && this.control){
+                this.cancel();                
                 e.stopImmediatePropagation();
             }
         }, false);
@@ -208,16 +208,23 @@ Ajax.prototype = {
         return this;
     },
 
-    cancel: _ => {
-        if (this.control && this.control.abort()){
+    cancel: function() {
+        if (this.control){
+            this.control.abort();
             console.log("Se canceló la petición");
             this.control = null;
         }
     },
 
     send: function(){
-        //Se configura el método Fetch y se ejecuta el envío
-        this.xhr = fetch(this.url, this.options);
+        try{
+            //Se configura el método Fetch y se ejecuta el envío
+            this.xhr = fetch(this.url, this.options);            
+        }
+        catch(error){
+            //Se lanza un error en caso de no poder ejecutarse la petición
+            throw new Error(`Ha ocurrido un error: ${error}`);
+        }
 
         //Se devuelve una instancia del método Fetch
         return this;
@@ -226,25 +233,29 @@ Ajax.prototype = {
     done: function(callback){
         //En caso de éxito, se recibe la respuesta según el tipo establecido
         this.xhr?.then(response => {
-            //Si se recibió la respuesta exitosamente
-            if (response.ok){
-                switch (this.type){
-                    case "HTML": case "TEXT": default:
-                        response.text().then(htmlText => callback(htmlText));
-                        break;
+            try{
+                //Si se recibió la respuesta exitosamente
+                if (response.ok){
+                    switch (this.type){
+                        case "HTML": case "TEXT": default:
+                            response.text().then(htmlText => callback(htmlText));
+                            break;
 
-                    case "JSON":                        
-                        response.json().then(json => callback(json));
-                        break;
+                        case "JSON":                        
+                            response.json().then(json => callback(json));
+                            break;
 
-                    case "XML":
-                        response.text().then(xml => callback(new window.DOMParser().parseFromString(xml, "text/xml")));
-                        break;
+                        case "XML":
+                            response.text().then(xml => callback(new window.DOMParser().parseFromString(xml, "text/xml")));
+                            break;
+                    }
+                }
+                else{
+                    throw new Error(`Error ${response.status}(${response.statusText.length} ? ": ${response.statusText}" : "")`);
                 }
             }
-            else{
-                callback({error: true});
-                console.log("Error " + response.status + (response.statusText.length ? ": " + response.statusText : ""));
+            catch(error){
+                console.log(error);
             }
         });
 
@@ -254,9 +265,7 @@ Ajax.prototype = {
 
     fail: function(callback){
         //En caso de error, se muestra un mensaje acerca del error producido
-        this.xhr?.catch(error => {
-            callback(error);
-        });
+        this.xhr?.catch(error => callback(error));
 
         //Se devuelve una instancia del método Fetch
         return this;

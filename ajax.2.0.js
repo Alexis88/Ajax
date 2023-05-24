@@ -188,9 +188,8 @@ Ajax.prototype = {
         
         /* CANCELACIÓN DE ENVÍO (EN CASO SE REQUIERA) */
 
-        this.control = new AbortController(); //Control para abortar la petición
-        this.cancelButton = 0; //Contador de pulsaciones de la tecla CTRL
-        this.options.signal = this.control.signal;
+        this.control = null; //Control para abortar la petición
+        this.cancelButton = 0; //Contador de pulsaciones de la tecla CTRL        
 
         //Si el usuario pulsa la tecla CTRL, se abortará la petición
         window.addEventListener("keyup", e => {
@@ -223,8 +222,12 @@ Ajax.prototype = {
 
     send: function(){
         try{
+            //Se añade un controlador para cancelar la petición
+            this.control = new AbortController();
+            this.options.signal = this.control.signal;
+
             //Se configura el método Fetch y se ejecuta el envío
-            this.xhr = fetch(this.url, this.options);            
+            this.xhr = fetch(this.url, this.options);           
         }
         catch(error){
             //Se lanza un error en caso de no poder ejecutarse la petición

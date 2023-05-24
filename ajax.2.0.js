@@ -189,16 +189,16 @@ Ajax.prototype = {
         /* CANCELACIÓN DE ENVÍO (EN CASO SE REQUIERA) */
 
         this.control = new AbortController(); //Control para abortar la petición
-        this.ESC = 0; //Contador de pulsaciones de la tecla ESC
+        this.cancelButton = 0; //Contador de pulsaciones de la tecla CTRL
         this.options.signal = this.control.signal;
 
-        //Si el usuario pulsa la tecla ESC, se abortará la petición
+        //Si el usuario pulsa la tecla CTRL, se abortará la petición
         window.addEventListener("keyup", e => {
-            if (e.which == 27 && this.control){
-                //Si se ha pulsado 2 veces la tecla ESC, se cancela la petición
-                if (++this.ESC == 2){
+            if (e.which == 17 && this.control){
+                //Si se ha pulsado 2 veces la tecla CTRL, se cancela la petición
+                if (++this.cancelButton == 2){
                     this.cancel();                
-                    this.ESC = 0;
+                    this.cancelButton = 0;
                     e.stopImmediatePropagation();
                 }
             }

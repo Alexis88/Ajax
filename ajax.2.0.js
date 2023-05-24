@@ -189,13 +189,18 @@ Ajax.prototype = {
         /* CANCELACIÓN DE ENVÍO (EN CASO SE REQUIERA) */
 
         this.control = new AbortController(); //Control para abortar la petición
+        this.ESC = 0; //Contador de pulsaciones de la tecla ESC
         this.options.signal = this.control.signal;
 
         //Si el usuario pulsa la tecla ESC, se abortará la petición
         window.addEventListener("keyup", e => {
             if (e.which == 27 && this.control){
-                this.cancel();                
-                e.stopImmediatePropagation();
+                //Si se ha pulsado 2 veces la tecla ESC, se cancela la petición
+                if (++this.ESC == 2){
+                    this.cancel();                
+                    this.ESC = 0;
+                    e.stopImmediatePropagation();
+                }
             }
         }, false);
 
@@ -235,7 +240,7 @@ Ajax.prototype = {
         this.xhr?.then(response => {
             try{
                 //Si se recibió la respuesta exitosamente
-                if (response.ok){
+                if (response.ok){                   
                     switch (this.type){
                         case "HTML": case "TEXT": default:
                             response.text().then(htmlText => callback(htmlText));
@@ -257,6 +262,9 @@ Ajax.prototype = {
             catch(error){
                 console.log(error);
             }
+
+            //Se reinicia el contador de pulsaciones de la tecla ESC
+            this.ESC = 0;
         });
 
         //Se devuelve una instancia del método Fetch
@@ -266,6 +274,9 @@ Ajax.prototype = {
     fail: function(callback){
         //En caso de error, se muestra un mensaje acerca del error producido
         this.xhr?.catch(error => callback(error));
+
+        //Se reinicia el contador de pulsaciones de la tecla ESC
+        this.ESC = 0;
 
         //Se devuelve una instancia del método Fetch
         return this;

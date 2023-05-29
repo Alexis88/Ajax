@@ -227,11 +227,10 @@ Ajax.prototype = {
             this.options.signal = this.control.signal;
 
             //Se configura el método Fetch y se ejecuta el envío
-            this.xhr = fetch(this.url, this.options);           
+            this.xhr = fetch(this.url, this.options);
         }
         catch(error){
-            //Se lanza un error en caso de no poder ejecutarse la petición
-            throw new Error(`Ha ocurrido un error: ${error}`);
+            throw new Error(`Se ha producido un error: ${error}`);
         }
 
         //Se devuelve una instancia del método Fetch
@@ -249,7 +248,7 @@ Ajax.prototype = {
                             response.text().then(htmlText => callback(htmlText));
                             break;
 
-                        case "JSON":                        
+                        case "JSON":
                             response.json().then(json => callback(json));
                             break;
 
@@ -258,8 +257,9 @@ Ajax.prototype = {
                             break;
                     }
                 }
+                //Caso contrario, se ejecuta la llamada de retorno provista
                 else{
-                    throw new Error(`Error ${response.status}(${response.statusText.length} ? ": ${response.statusText}" : "")`);
+                    throw new Error(response.status + (response.statusText.length ? `: ${response.statusText}` : ""));
                 }
             }
             catch(error){
@@ -278,8 +278,8 @@ Ajax.prototype = {
         //En caso de error, se muestra un mensaje acerca del error producido
         this.xhr?.catch(error => callback(error));
 
-        //Se reinicia el contador de pulsaciones de la tecla ESC
-        this.ESC = 0;
+        //Se reinicia el contador de pulsaciones de la tecla CTRL
+        this.cancelButton = 0;
 
         //Se devuelve una instancia del método Fetch
         return this;

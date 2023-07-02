@@ -34,7 +34,7 @@
  *
  * @author  Alexis López Espinoza
  * @param   {opciones}   Object         Objeto literal con los datos para realizar la petición
- * @return  {response}   Promise        Respuesta del método Fetch
+ * @return  {response}   Promise        Respuesta de la función Ajax
  * @this    {Ajax}       Function       La función Ajax
  * @version 2.0
  */
@@ -129,7 +129,7 @@ Ajax.prototype = {
 
             //Si el método de envío no permite adjuntar los datos por separado
             if (["GET", "HEAD"].indexOf(this.method) > -1){
-                this.url += "?" + this.data;
+                this.url += `?${this.data}`;
                 this.data = null;
             }
         }
@@ -211,7 +211,7 @@ Ajax.prototype = {
 
         this.send();
 
-        //Se devuelve una instancia del método Fetch
+        //Se devuelve una instancia de la función Ajax
         return this;
     },
 
@@ -229,14 +229,17 @@ Ajax.prototype = {
             this.control = new AbortController();
             this.options.signal = this.control.signal;
 
+            //Se establecen los argumentos del método Fetch en un objeto Request
+            this.request = new Request(this.url, this.options);
+
             //Se configura el método Fetch y se ejecuta el envío
-            this.xhr = fetch(this.url, this.options);
+            this.xhr = fetch(this.request);
         }
         catch(error){
             throw new Error(`Se ha producido un error: ${error}`);
         }
 
-        //Se devuelve una instancia del método Fetch
+        //Se devuelve una instancia de la función Ajax
         return this;
     },
 
@@ -285,7 +288,7 @@ Ajax.prototype = {
             this.cancelButton = 0;
         });
 
-        //Se devuelve una instancia del método Fetch
+        //Se devuelve una instancia de la función Ajax
         return this;
     },
 
@@ -296,7 +299,7 @@ Ajax.prototype = {
         //Se reinicia el contador de pulsaciones de la tecla CTRL
         this.cancelButton = 0;
 
-        //Se devuelve una instancia del método Fetch
+        //Se devuelve una instancia de la función Ajax
         return this;
     }
 };
@@ -306,7 +309,8 @@ Ajax.prototype = {
 //Da formato a los datos recibidos para ser enviados al lado del servidor
 Ajax.serialize = function (elemento /* Formulario/Datos */, metodo, self, tipo /* El tipo de dato (opcional) */){
     //Objeto o array que almacenará los datos a enviar, y el comodín que decidirá qué datos se devolverán
-    let dataBody = new FormData(), dataNoBody = [], flag;
+    const dataBody = new FormData();
+    let dataNoBody = [], flag;
 
     //Si el tipo de respuesta a obtener es XML, se pasa directamente el valor a procesar
     if (tipo && tipo.toUpperCase() == "XML"){
@@ -320,7 +324,7 @@ Ajax.serialize = function (elemento /* Formulario/Datos */, metodo, self, tipo /
         for (let i = 0, l = elemento.length; i < l; i++){
             //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
             if ((metodo && ["GET", "HEAD"].indexOf(metodo.toUpperCase()) > -1) || !metodo){
-                dataNoBody.push("array[]=" + elemento[i]);
+                dataNoBody.push(`array[]=${elemento[i]}`);
                 flag = "no";
             }
             //Si el método de envío es POST, PUT O DELETE
@@ -345,7 +349,7 @@ Ajax.serialize = function (elemento /* Formulario/Datos */, metodo, self, tipo /
         for (let prop in elemento){
             //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
             if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
-                dataNoBody.push(prop + "=" + elemento[prop]);
+                dataNoBody.push(`${prop}=${elemento[prop]}`);
                 flag = "no";
             }
             //Si el método de envío es POST, PUT O DELETE
@@ -369,7 +373,7 @@ Ajax.serialize = function (elemento /* Formulario/Datos */, metodo, self, tipo /
         //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
         if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
             for (let prop of elemento.entries()){
-                dataNoBody.push(prop[0] + "=" + prop[1]);
+                dataNoBody.push(`${prop[0]}=${prop[1]}`);
                 flag = "no";    
             }            
         }
@@ -412,7 +416,7 @@ Ajax.serialize = function (elemento /* Formulario/Datos */, metodo, self, tipo /
                     //Caso contrario, se añade todos los archivos
                     else{
                         for (let j = 0, m = f[i].files.length; j < m; j++){
-                            dataBody.append(f[i].name + "[]", f[i].files[j]);
+                            dataBody.append(`${f[i].name}[]`, f[i].files[j]);
                         }
                     }
 
@@ -432,7 +436,7 @@ Ajax.serialize = function (elemento /* Formulario/Datos */, metodo, self, tipo /
             //Si se trata de cualquier otro tipo de elemento, se añade el valor
             //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
             if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
-                dataNoBody.push(f[i].name + "=" + f[i].value);
+                dataNoBody.push(`${f[i].name}=${f[i].value}`);
                 flag = "no";
             }
             //Si el método de envío es POST, PUT O DELETE
@@ -469,14 +473,15 @@ Ajax.serialize = function (elemento /* Formulario/Datos */, metodo, self, tipo /
         //Si no es una cadena de consulta
         if (elemento.indexOf("=") < 0) return null;
 
-        let arr = elemento.split("&"), aux;
+        const arr = elemento.split("&");
+        let aux;
 
         for (let i = 0, l = arr.length; i < l; i++){
             aux = arr[i].split("=");
 
             //Si se recibió un método de envío y es GET o HEAD o no se recibió un método
             if ((metodo && ["GET", "HEAD"].indexOf(metodo) > -1) || !metodo){
-                dataNoBody.push(aux[0] + "=" + aux[1]);
+                dataNoBody.push(`${aux[0]}=${aux[1]}`);
                 flag = "no";
             }
             //Si el método de envío es POST, PUT O DELETE

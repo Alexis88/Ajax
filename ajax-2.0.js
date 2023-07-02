@@ -78,7 +78,7 @@ Ajax.prototype = {
             this.url = opciones.url;
         }
         else{
-            return false;
+            throw new Error("Tiene que establecer una ruta para la petición");
         }
 
 

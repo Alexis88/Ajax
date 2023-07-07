@@ -1,5 +1,5 @@
 /**
- * Función Ajax
+ * FUNCIÓN AJAX
  * 
  * 
  * Esta función, basada en la estructura del método jQuery.ajax(), tiene por finalidad facilitar 
@@ -29,7 +29,10 @@
  *     //Aquí se puede tratar la respuesta del servidor
  * }).fail(function(error){
  *     //Aquí se puede tratar el mensaje del error producido
+ * }).always(function(){
+ *     //Aquí se pueden ejecutar instrucciones al finalizar la petición
  * });
+ * 
  * 
  *
  * @author  Alexis López Espinoza
@@ -301,6 +304,17 @@ Ajax.prototype = {
 
         //Se devuelve una instancia de la función Ajax
         return this;
+    },
+
+    always: function(callback){
+        //Cuando se complete la petición asíncrona, se ejecutará la llamada de retorno
+        this.xhr?.finally(result => callback(result));
+
+        //Se reinicia el contador de pulsaciones de la tecla CTRL
+        this.cancelButton = 0;
+
+        //Se devuelve una instancia de la función Ajax
+        return this;
     }
 };
 
@@ -309,8 +323,7 @@ Ajax.prototype = {
 //Da formato a los datos recibidos para ser enviados al lado del servidor
 Ajax.serialize = function (elemento /* Formulario/Datos */, metodo, self, tipo /* El tipo de dato (opcional) */){
     //Objeto o array que almacenará los datos a enviar, y el comodín que decidirá qué datos se devolverán
-    const dataBody = new FormData();
-    let dataNoBody = [], flag;
+    let dataBody = new FormData(), dataNoBody = [], flag;
 
     //Si el tipo de respuesta a obtener es XML, se pasa directamente el valor a procesar
     if (tipo && tipo.toUpperCase() == "XML"){
